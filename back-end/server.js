@@ -3,8 +3,7 @@ const express = require('express'),
   bodyParser = require('body-parser'),
   mongoose = require('mongoose'),
   cors = require('cors'),
-  app = express(),
-  { expressCspHeader } = require('express-csp-header');
+  app = express();
 
 require('dotenv').config()
 
@@ -21,12 +20,7 @@ mongoose.connect(process.env.DATABASE).then(() => {
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use(expressCspHeader({
-  policies: {
-    'default-src': [expressCspHeader.NONE],
-    'img-src': [expressCspHeader.SELF],
-  }
-}));
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -53,3 +47,7 @@ const server = app.listen(port, () => {
 app.get('/dataset')
 
 module.exports = app;
+
+
+
+
