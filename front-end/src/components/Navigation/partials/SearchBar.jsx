@@ -1,11 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { ReactComponent as SearchIcon } from '../../../assets/icons/icons8-search.svg';
 import useDataset from '../../../hooks/useDataset';
 import History from '../../History/History';
 import { useRecoilState } from 'recoil';
 import { queryState } from '../../../atoms/queryAtom';
+import _ from 'lodash';
 
 const InputStyled = styled.input`
   width: clamp(300px, 50vw, 80vw);
@@ -32,8 +33,13 @@ function SearchBarComponent() {
   const [query, setQuery] = useRecoilState(queryState);
   const controller = new AbortController();
 
+  const debouncedSearch = useCallback(
+    _.debounce(() => datasetApi.fetchFilteredDataset(), 600),
+    [query]
+  );
+
   useEffect(() => {
-    datasetApi.fetchFilteredDataset();
+    debouncedSearch();
 
     return () => controller.abort();
   }, [query, setQuery]);
