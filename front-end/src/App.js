@@ -7,7 +7,6 @@ import {
 } from "react-router-dom";
 
 import NavBar from "./components/Navigation/NavBar";
-import Filters from "./components/Filters/Filters";
 import Results from "./components/Results/Results";
 
 import History from "./components/History/History";
@@ -18,7 +17,7 @@ function Home() {
   return (
     <>
       <NavBar />
-      <Filters />
+
       <Results />
     </>
   )

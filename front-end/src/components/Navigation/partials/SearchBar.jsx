@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useRef } from 'react';
 import styled from '@emotion/styled';
 import { ReactComponent as SearchIcon } from '../../../assets/icons/icons8-search.svg';
 import useDataset from '../../../hooks/useDataset';
-import _ from 'lodash';
 import History from '../../History/History';
 import { useRecoilState } from 'recoil';
 import { queryState } from '../../../atoms/queryAtom';
@@ -27,35 +27,48 @@ const WrapperDiv = styled.div`
 `;
 
 function SearchBarComponent() {
-  const [query, setQuery] = useRecoilState(queryState);
+  const refInput = useRef();
   const datasetApi = useDataset();
+  const [query, setQuery] = useRecoilState(queryState);
+  const controller = new AbortController();
+
+  useEffect(() => {
+    datasetApi.fetchFilteredDataset();
+
+    return () => controller.abort();
+  }, [query, setQuery]);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
 
+    if (refInput.current.value.length < 1) {
+      return History.push({
+        pathname: '/',
+        search: null,
+      });
+    }
+
+    if (query && query.length < 1 && !window.location.search) {
+      return History.push({
+        pathname: '/search',
+        search: null,
+      });
+    }
     History.push({
       pathname: '/search',
       search: '?' + new URLSearchParams({ data_name: query }).toString(),
     });
   };
 
-  useEffect(() => {
-    if (query.length < 1 && !window.location.search)
-      return History.push({
-        pathname: '/search',
-        search: null,
-      });
-
-    datasetApi.fetchFilteredDataset();
-  }, [query]);
-
   return (
     <DivStyled>
       <WrapperDiv>
         <InputStyled
+          ref={refInput}
           type="text"
           placeholder="Search through dataset"
           onChange={handleChange}
+          value={query}
         />
         <SearchIcon
           style={{

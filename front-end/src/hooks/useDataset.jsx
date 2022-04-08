@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useMemo } from 'react';
 import axios from 'axios';
 import {
   DATASET_BACKEND_LINK,
@@ -18,27 +18,29 @@ function useDataset() {
   const [, setDatasetResults] = useRecoilState(datasetState);
   const [searchData] = useRecoilState(queryState);
 
-  const searchOptions = {
-    method: 'POST',
-    url: DATASET_SEARCH_BACKEND_LINK,
-    params: { data_name: searchData },
-  };
-  const fetchDataset = async () => {
+  const searchOptions = useMemo(
+    () => ({
+      method: 'POST',
+      url: DATASET_SEARCH_BACKEND_LINK,
+      params: { data_name: searchData },
+    }),
+    [searchData]
+  );
+  const fetchDataset = useCallback(async () => {
     try {
       const { data } = await axios.request(options);
       setDatasetResults(data[0].DATASET);
     } catch (e) {
       console.error('ERROR WITH FETCH: ', e.message);
     }
-  };
+  }, [setDatasetResults]);
 
-  const fetchFilteredDataset = async () => {
+  const fetchFilteredDataset = useCallback(async () => {
     try {
       axios
         .request(searchOptions)
         .then(function (response) {
           setDatasetResults(response.data);
-          console.log(response.data);
         })
         .catch(function (error) {
           console.error(error);
@@ -46,11 +48,7 @@ function useDataset() {
     } catch (e) {
       console.error('ERROR WITH FETCH: ', e.message);
     }
-  };
-
-  useEffect(() => {
-    fetchFilteredDataset();
-  }, []);
+  }, [searchOptions, setDatasetResults]);
 
   return {
     fetchDataset,
