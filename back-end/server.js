@@ -9,7 +9,7 @@ require('dotenv').config()
 
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE).then(() => {
+mongoose.connect(process.env.DATABASE).then(async () => {
   console.log('Database sucessfully connected')
 },
   error => {
@@ -19,6 +19,7 @@ mongoose.connect(process.env.DATABASE).then(() => {
 
 app.use(bodyParser.json());
 app.use(cors());
+
 
 
 
